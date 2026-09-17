@@ -22,7 +22,7 @@ router.get('/stats', authRequired, h(async (req, res) => {
   // 差价利润是总部口径(代理/会员不应得知上游价),仅 ADMIN 计算
   const isAdmin = req.user.role === 'ADMIN';
 
-  const [todayOrders, todayAmountAgg, payoutAgg, withdrawAgg, pendingCount, userCount, profitAgg] = await Promise.all([
+  const [todayOrders, todayAmountAgg, payoutAgg, withdrawAgg, pendingCount, userCount, profitAgg, pendingWithdrawCount] = await Promise.all([
     // 今日提交报单数(全部状态)
     prisma.order.count({ where: { ...scope, createdAt: { gte: today, lt: tomorrow } } }),
     // 今日全部报单总额
@@ -49,6 +49,8 @@ router.get('/stats', authRequired, h(async (req, res) => {
           where: { status: 'APPROVED', reviewedAt: { gte: today, lt: tomorrow } },
         })
       : Promise.resolve({ _sum: { profit: null } }),
+    // 待审提现申请数(仅 ADMIN,提醒及时处理)
+    isAdmin ? prisma.withdrawRequest.count({ where: { status: 'PENDING' } }) : Promise.resolve(0),
   ]);
 
   // 近 N 天趋势:orderAmount(报单金额)+ payout(打款流水)双序列
@@ -113,6 +115,7 @@ router.get('/stats', authRequired, h(async (req, res) => {
       userCount,
       // 仅 ADMIN 有值,代理/会员侧为 undefined 不下发
       ...(isAdmin ? { todayProfit: round2(profitAgg._sum.profit || 0) } : {}),
+      ...(isAdmin ? { pendingWithdrawCount } : {}),
     },
     trend,
     statusDist,

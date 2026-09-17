@@ -18,13 +18,13 @@ backend/            Express API 服务
   scripts/          一次性数据脚本
   src/
     index.js        应用入口（同时托管 frontend/dist）
-    routes/         业务路由：auth / dashboard / orders / products / users / transactions / settings / realname
+    routes/         业务路由：auth / dashboard / orders / products / users / transactions / settings / realname / withdraws
     middleware/     鉴权与角色校验
     util.js         通用工具与计价函数（computeAgentPrice 等）
 frontend/           Vue 3 SPA
   src/
     api/            axios 封装与各模块接口
-    views/          页面：login / dashboard / orders / products / users / transactions / realname
+    views/          页面：login / dashboard / orders / products / users / transactions / realname / withdraw
     layouts/        AdminLayout
   dist/             构建产物（服务器直接托管，需随仓库更新）
 docs/               产品需求、API 契约、部署计划与更新记录

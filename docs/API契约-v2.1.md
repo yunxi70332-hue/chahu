@@ -241,3 +241,31 @@ typeLabel 服务端给出;`order` 可为 null(非报单类流水)。
 - `GET /users` 列表项新增:`realName/idCardNo/realnameStatus/realnameRejectReason/realnameSubmittedAt/realnameReviewedAt`;筛选支持 `realnameStatus`
 - `GET /auth/me` 返回体新增 `realnameStatus`
 - 证件号展示:本人/列表脱敏;管理员审核弹窗用完整号
+
+## 10. 提现 `/withdraws`(v2.7;申请-审核流,与用户管理「线下转账记账」两通道并存)
+
+申请状态:`PENDING 待审 / APPROVED 已通过(已扣款) / REJECTED 已驳回`。
+可用余额 = `balance − 待审中提现合计`(申请时校验);审核通过在事务内复查状态与余额后扣款,并写 `WITHDRAW` 负金额流水(remark `提现打款 <wdNo>`),`transactionId` 关联该流水。
+
+### POST /withdraws — 发起申请(AGENT/MEMBER;ADMIN 400)
+```json
+// req
+{ "amount": 12000, "method": "BANK", "account": "622202020011223340", "accountName": "王芳" }
+// res.data
+{ "id": 1, "wdNo": "WD20260918013251CPT5", "userId": 49, "amount": 12000, "method": "BANK",
+  "account": "622202020011223340", "accountName": "王芳", "status": "PENDING", "createdAt": "..." }
+```
+- method 枚举:`ALIPAY / WECHAT / BANK`;账号 ≤100 字符,姓名 ≤50 字符,均必填
+- 400:`realnameStatus ≠ APPROVED`「请先完成实名认证…」/ 金额非正 / 超出可用余额(附当前可用值)/ 冻结账号 403
+
+### GET /withdraws — 列表(ADMIN 全量;AGENT/MEMBER 仅自己)
+- 筛选:`status` / `keyword`(wdNo 模糊)/ `startDate` / `endDate` / `userId`(不得越过数据范围)
+- `res.data.list` 项含 `user{id,name,phone,role}` 与 `transaction{txNo}`(未通过为 null)
+- `res.data.pendingSum`:筛选范围内待审合计(用户侧据此展示可用余额)
+
+### GET /withdraws/:id — 详情(本人或 ADMIN;含 user.balance/realName),他人 403
+### POST /withdraws/:id/approve — ADMIN,事务内扣余额 + 写 WITHDRAW 流水 + 置 APPROVED
+- 400「该申请已审核过」(并发双审只成功一次)/「申请人当前余额不足,请驳回该申请」
+
+### POST /withdraws/:id/reject — ADMIN,`{ "reason": "必填" }` → REJECTED,不动余额
+### DELETE /withdraws/:id — 撤销(申请人本人或 ADMIN,仅 PENDING),不动余额;已审核 400

@@ -32,6 +32,8 @@ model User {
   orders       Order[]
   reviewedOrders Order[]     @relation("OrderReviewer")
   transactions Transaction[]
+  withdrawRequests WithdrawRequest[] @relation("WithdrawRequests")
+  reviewedWithdraws WithdrawRequest[] @relation("WithdrawReviewer")
 }
 
 model Product {
@@ -91,6 +93,7 @@ model Transaction {
   balanceAfter Float
   orderId      Int?
   order        Order?   @relation(fields: [orderId], references: [id])
+  withdraw     WithdrawRequest?
   remark       String?
   createdAt    DateTime @default(now())
 }
@@ -99,4 +102,24 @@ model Setting {
   id    Int    @id @default(autoincrement())
   key   String @unique
   value String // JSON 字符串
+}
+
+// v2.7 提现申请:代理/会员发起 → 管理员审核,通过时扣余额并写 WITHDRAW 流水
+model WithdrawRequest {
+  id            Int          @id @default(autoincrement())
+  wdNo          String       @unique
+  userId        Int
+  user          User         @relation("WithdrawRequests", fields: [userId], references: [id])
+  amount        Float // 恒为正
+  method        String // ALIPAY / WECHAT / BANK
+  account       String // 收款账号(支付宝号/微信号/银行卡号)
+  accountName   String // 收款人姓名
+  status        String       @default("PENDING") // PENDING / APPROVED / REJECTED
+  rejectReason  String?
+  reviewedBy    Int?
+  reviewer      User?        @relation("WithdrawReviewer", fields: [reviewedBy], references: [id])
+  reviewedAt    DateTime?
+  transactionId Int?         @unique // 审核通过产生的 WITHDRAW 流水
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  createdAt     DateTime     @default(now())
 }

@@ -36,3 +36,6 @@ qa-screenshots/_*
 .DS_Store
 Thumbs.db
 *.local
+
+# 无头 Chrome 冒烟测试临时 profile
+scripts/.chrome-tmp/

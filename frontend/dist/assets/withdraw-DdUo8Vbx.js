@@ -1,0 +1,1 @@
+import{V as a,Y as t,_ as e}from"./index-Cw75TwaN.js";function s(r={}){return a("/withdraws",r)}function w(r){return t("/withdraws",r)}function d(r){return a(`/withdraws/${r}`)}function c(r){return e(`/withdraws/${r}`)}function h(r){return t(`/withdraws/${r}/approve`)}function o(r,i){return t(`/withdraws/${r}/reject`,{reason:i})}export{c as a,h as b,w as c,d as g,s as l,o as r};

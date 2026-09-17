@@ -64,6 +64,8 @@ export interface DashboardCards {
   userCount: number
   /** v2.4 今日差价利润,仅 ADMIN 响应中存在 */
   todayProfit?: number
+  /** v2.7 待审提现申请数,仅 ADMIN 响应中存在 */
+  pendingWithdrawCount?: number
 }
 
 export interface DashboardTrendItem {
@@ -220,7 +222,15 @@ export type ProductPayload = {
   color?: string
   condition?: string
   price?: number | null
+  /** v2.8 上游报价,新建/编辑产品可填(仅总部可见) */
+  upstreamPrice?: number | null
   quoteDate?: string
+}
+
+/** v2.8 品类管理条目:name 为品类名,productCount 为该品类下商品数 */
+export interface CategoryInfo {
+  name: string
+  productCount: number
 }
 
 export interface ProductImportResult {
@@ -351,4 +361,49 @@ export type TxnListParams = {
 export type TxnListResult = PageResult<Txn> & {
   incomeSum: number
   expenseSum: number
+}
+
+/* ---------------- 提现 /withdraws(v2.7) ---------------- */
+
+export type WithdrawStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+export type WithdrawMethod = 'ALIPAY' | 'WECHAT' | 'BANK'
+
+export interface Withdrawal {
+  id: number
+  wdNo: string
+  userId: number
+  user: { id: number; name: string; phone: string; role: Role }
+  amount: number // 恒为正
+  method: WithdrawMethod
+  account: string
+  accountName: string
+  status: WithdrawStatus
+  rejectReason: string | null
+  reviewedBy: number | null
+  reviewedAt: string | null
+  /** 审核通过产生的 WITHDRAW 流水号(未审核/驳回为 null) */
+  transaction: { txNo: string } | null
+  createdAt: string
+}
+
+export type WithdrawListParams = {
+  page?: number
+  pageSize?: number
+  status?: WithdrawStatus | ''
+  keyword?: string
+  startDate?: string
+  endDate?: string
+  userId?: number
+}
+
+export type WithdrawListResult = PageResult<Withdrawal> & {
+  /** 筛选范围内待审提现合计(用户侧据此展示可用余额) */
+  pendingSum: number
+}
+
+export type WithdrawCreatePayload = {
+  amount: number
+  method: WithdrawMethod
+  account: string
+  accountName: string
 }

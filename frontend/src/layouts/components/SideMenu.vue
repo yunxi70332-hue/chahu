@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { markRaw } from 'vue'
 import { useRoute } from 'vue-router'
-import { Box, List, Money, Odometer, Postcard, User } from '@element-plus/icons-vue'
+import { Box, Coin, List, Money, Odometer, Postcard, User, Wallet } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 
 import type { Role } from '@/api/types'
@@ -25,8 +25,10 @@ const MENU_ITEMS: MenuItem[] = [
   { path: '/dashboard', title: '看板', icon: markRaw(Odometer), roles: ['ADMIN', 'AGENT'] },
   { path: '/orders', title: '报单管理', icon: markRaw(List), roles: ['ADMIN', 'AGENT', 'MEMBER'] },
   { path: '/realname', title: '实名认证', icon: markRaw(Postcard), roles: ['AGENT', 'MEMBER'] },
+  { path: '/my-withdraws', title: '我的提现', icon: markRaw(Coin), roles: ['AGENT', 'MEMBER'] },
   { path: '/products', title: '产品管理', icon: markRaw(Box), roles: ['ADMIN'] },
   { path: '/users', title: '用户管理', icon: markRaw(User), roles: ['ADMIN'] },
+  { path: '/withdraw-review', title: '提现审核', icon: markRaw(Wallet), roles: ['ADMIN'] },
   { path: '/transactions', title: '资金流水', icon: markRaw(Money), roles: ['ADMIN', 'AGENT', 'MEMBER'] },
 ]
 

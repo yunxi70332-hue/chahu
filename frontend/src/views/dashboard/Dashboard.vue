@@ -76,6 +76,19 @@ const cards = computed<CardItem[]>(() => {
       tone: 'warning' as const,
       to: '/orders?status=PENDING',
     },
+    // v2.7 待审提现仅总部可见,点击直达提现审核页
+    ...(isAdmin.value
+      ? [
+          {
+            key: 'pendingWithdraw',
+            title: '提现待审',
+            value: fmtCount(c?.pendingWithdrawCount),
+            icon: 'Coin',
+            tone: 'warning' as const,
+            to: '/withdraw-review?status=PENDING',
+          },
+        ]
+      : []),
     {
       key: 'userCount',
       title: '用户数',

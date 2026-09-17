@@ -11,6 +11,7 @@ import userRoutes from './routes/users.js';
 import transactionRoutes from './routes/transactions.js';
 import settingsRoutes from './routes/settings.js';
 import realnameRoutes from './routes/realname.js';
+import withdrawRoutes from './routes/withdraws.js';
 
 const app = express();
 // 同源部署:Express 托管前端 dist,浏览器请求全部同源,不开放跨域
@@ -24,6 +25,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/realname', realnameRoutes);
+app.use('/api/withdraws', withdrawRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

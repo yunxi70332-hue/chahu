@@ -60,6 +60,20 @@ export const REALNAME_STATUS: Record<string, EnumMeta> = {
   REJECTED: { label: '已驳回', type: 'danger' },
 }
 
+/** 提现申请状态(v2.7):待审橙 / 已通过绿 / 已驳回红 */
+export const WITHDRAW_STATUS: Record<string, EnumMeta> = {
+  PENDING: { label: '待审核', type: 'warning' },
+  APPROVED: { label: '已通过', type: 'success' },
+  REJECTED: { label: '已驳回', type: 'danger' },
+}
+
+/** 提现收款方式(v2.7) */
+export const WITHDRAW_METHOD: Record<string, EnumMeta> = {
+  ALIPAY: { label: '支付宝', type: 'primary' },
+  WECHAT: { label: '微信', type: 'success' },
+  BANK: { label: '银行卡', type: 'warning' },
+}
+
 /** 从映射表取枚举元信息,未命中时兜底展示原值 */
 export function enumMeta(map: Record<string, EnumMeta>, key?: string | null): EnumMeta {
   if (key && map[key]) return map[key]

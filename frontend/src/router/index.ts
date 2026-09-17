@@ -49,6 +49,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '实名认证', roles: ['AGENT', 'MEMBER'] },
       },
       {
+        path: 'my-withdraws',
+        name: 'myWithdraws',
+        component: () => import('@/views/withdraw/MyWithdraw.vue'),
+        meta: { title: '我的提现', roles: ['AGENT', 'MEMBER'] },
+      },
+      {
         path: 'products',
         name: 'products',
         component: () => import('@/views/products/Products.vue'),
@@ -59,6 +65,12 @@ const routes: RouteRecordRaw[] = [
         name: 'users',
         component: () => import('@/views/users/Users.vue'),
         meta: { title: '用户管理', roles: ['ADMIN'] },
+      },
+      {
+        path: 'withdraw-review',
+        name: 'withdrawReview',
+        component: () => import('@/views/withdraw/WithdrawReview.vue'),
+        meta: { title: '提现审核', roles: ['ADMIN'] },
       },
       {
         path: 'transactions',
