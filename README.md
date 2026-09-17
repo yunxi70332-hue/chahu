@@ -100,9 +100,9 @@ cd frontend && npm run build   # 输出到 frontend/dist
 
 ## 代码仓库
 
-本仓库同步推送至两个远端（`origin` 已配置双 push URL，执行一次 `git push` 即可同时更新）：
+唯一更新远端为 GitHub（自 v2.6 起，`origin` 的 push URL 已改为仅 GitHub，`git push` 即推送）：
 
-- Gitee：https://gitee.com/yunxi70332/chhahu.git
 - GitHub：https://github.com/yunxi70332-hue/chahu.git
+- Gitee：https://gitee.com/yunxi70332/chhahu.git （**已冻结**，仅作历史留档，不再推送）
 
-> ⚠️ 两个仓库均为**公开仓库**，提交前请确认不含密钥、密码或客户数据。
+> ⚠️ 仓库均为**公开仓库**，提交前请确认不含密钥、密码或客户数据。
