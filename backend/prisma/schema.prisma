@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  phone        String        @unique
+  passwordHash String
+  name         String
+  role         String        @default("MEMBER") // ADMIN / AGENT / MEMBER
+  parentId     Int?
+  parent       User?         @relation("AgentTree", fields: [parentId], references: [id])
+  children     User[]        @relation("AgentTree")
+  level        Int           @default(0) // 代理等级
+  balance      Float         @default(0)
+  status       String        @default("ACTIVE") // ACTIVE / FROZEN
+  // 实名认证(本版本 AGENT/MEMBER 同等性质:上传身份证人像面 → 管理员审核 → 通过后锁定)
+  realName            String?
+  idCardNo            String?
+  idCardPhoto         String? // 照片文件名(存 D:\baodan-data\uploads\idcards\)
+  realnameStatus      String        @default("NONE") // NONE / PENDING / APPROVED / REJECTED
+  realnameRejectReason String?
+  realnameReviewedBy  Int?
+  realnameReviewedAt  DateTime?
+  realnameSubmittedAt DateTime?
+  createdAt    DateTime      @default(now())
+  orders       Order[]
+  reviewedOrders Order[]     @relation("OrderReviewer")
+  transactions Transaction[]
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  category  String // 产品大类:手机/平板电脑/智能穿戴…
+  brand     String // 品牌
+  name      String // 产品名称
+  model     String? // 型号/子规格
+  memory    String? // 内存
+  disk      String? // 硬盘
+  screen    String? // 屏幕/尺寸
+  color     String? // 颜色
+  condition String? // 成色/备注(含官方价)
+  upstreamPrice Float? // 上游报价(大富报价,商业机密仅总部可见);price = 上游价×(1-品类下浮%)
+  price     Float? // 代理收购价(代理/会员所见并可报单的价格)
+  quoteDate String? // 报价日期
+  status    String   @default("ACTIVE") // ACTIVE / DISABLED
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Order {
+  id           Int           @id @default(autoincrement())
+  orderNo      String        @unique
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id])
+  productId    Int?
+  product      Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  logisticsNo  String? // 快递单号
+  productName  String
+  productType  String // 产品大类
+  spec         String? // 规格(内存/硬盘/颜色快照)
+  quantity     Int           @default(1)
+  unitPrice    Float
+  totalAmount  Float
+  upstreamPrice Float? // 下单时上游价快照(仅总部可见)
+  profit       Float         @default(0) // 差价利润 =(上游价-结算价)×数量,建单时快照(仅总部可见)
+  commission   Float         @default(0) // v2.3 废弃:中介模式下恒 0,历史订单保留
+  status       String        @default("PENDING") // PENDING / APPROVED / REJECTED
+  remark       String?
+  rejectReason String? // 驳回原因(驳回时写入,不覆盖报单人备注)
+  reviewedBy   Int?
+  reviewer     User?         @relation("OrderReviewer", fields: [reviewedBy], references: [id])
+  reviewedAt   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           Int      @id @default(autoincrement())
+  txNo         String   @unique
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  type         String // RECHARGE / WITHDRAW / ORDER / COMMISSION / ADJUST
+  amount       Float // 正负号表达方向
+  balanceAfter Float
+  orderId      Int?
+  order        Order?   @relation(fields: [orderId], references: [id])
+  remark       String?
+  createdAt    DateTime @default(now())
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String // JSON 字符串
+}

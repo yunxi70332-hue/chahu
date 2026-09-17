@@ -1,0 +1,38 @@
+# 依赖
+node_modules/
+*/node_modules/
+
+# 环境变量(含 JWT_SECRET / IMPORT_KEY 等真实密钥,禁止入库)
+.env
+.env.*
+!.env.example
+
+# 构建产物(dist 需随仓库部署到服务器,故不忽略;dist_stage2 为过期中间产物)
+frontend/dist_stage2/
+dist_stage2/
+
+# 数据库与备份
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+backups/
+
+# 上传件
+uploads/
+idcards/
+
+# 日志
+*.log
+logs/
+
+# 本地验证临时脚本(下划线前缀)
+backend/scripts/_*
+qa-screenshots/_*
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.local
