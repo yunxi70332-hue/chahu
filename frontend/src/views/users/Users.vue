@@ -25,6 +25,7 @@ import RealnameReviewDialog from './components/RealnameReviewDialog.vue'
  * 用户管理(仅 ADMIN 角色可达;页面内仍按 role 隐藏写操作):
  * 筛选栏(关键词 + 角色 + 实名状态)+ 用户表格(分页 10)
  * + 新建/编辑/冻结/解冻/余额调整/重置密码 + 实名审核/重置实名
+ * + 双击「已实名」徽章查看实名信息快照(只读)
  */
 const PAGE_SIZE = 10
 
@@ -175,6 +176,16 @@ function openReview(row: SystemUser) {
   reviewVisible.value = true
 }
 
+/* ---- 实名信息快照(双击「已实名」徽章,只读) ---- */
+const snapshotVisible = ref(false)
+const snapshotUserId = ref<number | null>(null)
+
+function openSnapshot(row: SystemUser) {
+  if (!isAdmin.value) return
+  snapshotUserId.value = row.id
+  snapshotVisible.value = true
+}
+
 async function handleResetRealname(row: SystemUser) {
   try {
     await ElMessageBox.confirm(
@@ -283,6 +294,16 @@ onMounted(load)
                 {{ enumMeta(REALNAME_STATUS, row.realnameStatus).label }}
               </el-tag>
             </el-tooltip>
+            <!-- 已实名:双击查看实名信息快照 -->
+            <el-tag
+              v-else-if="row.realnameStatus === 'APPROVED'"
+              :type="enumMeta(REALNAME_STATUS, row.realnameStatus).type"
+              disable-transitions
+              class="tag-realname--view"
+              @dblclick="openSnapshot(row)"
+            >
+              {{ enumMeta(REALNAME_STATUS, row.realnameStatus).label }}
+            </el-tag>
             <el-tag v-else :type="enumMeta(REALNAME_STATUS, row.realnameStatus).type" disable-transitions>
               {{ enumMeta(REALNAME_STATUS, row.realnameStatus).label }}
             </el-tag>
@@ -353,6 +374,8 @@ onMounted(load)
     <ResetPwdDialog v-model="resetPwdVisible" :user="resetPwdUser" @success="load" />
     <!-- 实名审核 -->
     <RealnameReviewDialog v-model="reviewVisible" :user-id="reviewUserId" @success="load" />
+    <!-- 实名信息快照(双击「已实名」徽章,只读) -->
+    <RealnameReviewDialog v-model="snapshotVisible" :user-id="snapshotUserId" view-only />
   </div>
 </template>
 
@@ -406,6 +429,11 @@ onMounted(load)
 .cell-money {
   font-variant-numeric: tabular-nums;
   color: var(--el-text-color-primary, #333);
+}
+
+/* 已实名徽章:双击可查看实名信息快照 */
+.tag-realname--view {
+  cursor: pointer;
 }
 
 /* ---- 分页 ---- */

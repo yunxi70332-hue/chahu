@@ -17,10 +17,13 @@ import { enumMeta, formatFullDateTime, REALNAME_STATUS } from '@/utils/format'
  * - 打开时并行拉取实名详情(getRealnameDetail,含完整证件号)+ 身份证照片(fetchRealnamePhoto → blob objectURL)
  * - 左照片 / 右信息核对;通过(锁定)/ 驳回(原因必填)/ 重置实名(清空,需重新提交)
  * - blob 生命周期:关闭弹窗或组件卸载时 URL.revokeObjectURL 释放
+ * - viewOnly(实名信息快照):无任何操作入口,供用户管理双击「已实名」徽章查看
  */
 const props = defineProps<{
   modelValue: boolean
   userId: number | null
+  /** 只读快照模式:标题切换为「实名信息快照」,隐藏重置实名等操作 */
+  viewOnly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -38,10 +41,16 @@ const detail = ref<RealnameDetail | null>(null)
 const photoUrl = ref('')
 
 const isPending = computed(() => detail.value?.realnameStatus === 'PENDING')
-/** NONE 之外都提供重置入口(纠错兜底);NONE 无信息可重置 */
+/** NONE 之外都提供重置入口(纠错兜底);NONE 无信息可重置;只读快照模式不提供任何操作 */
 const canReset = computed(() => {
+  if (props.viewOnly) return false
   const s = detail.value?.realnameStatus
   return !!s && s !== 'NONE'
+})
+
+const dialogTitle = computed(() => {
+  const prefix = props.viewOnly ? '实名信息快照' : '实名审核'
+  return detail.value ? `${prefix} - ${detail.value.name}` : prefix
 })
 
 /* ---- 驳回:点「驳回」先展开原因输入,再次点击才提交 ---- */
@@ -179,7 +188,7 @@ async function onReset() {
 <template>
   <el-dialog
     v-model="visible"
-    :title="detail ? `实名审核 - ${detail.name}` : '实名审核'"
+    :title="dialogTitle"
     width="720px"
     :close-on-click-modal="false"
     @closed="releasePhoto"
@@ -251,7 +260,10 @@ async function onReset() {
 
         <!-- 非 PENDING 兜底:信息只读展示,通过/驳回不渲染 -->
         <div v-if="!isPending" class="readonly-tip">
-          当前状态非「待审核」,信息仅供查看{{ canReset ? ',如需纠错可重置实名' : '' }}。
+          <template v-if="viewOnly">实名信息快照,仅供查看。</template>
+          <template v-else>
+            当前状态非「待审核」,信息仅供查看{{ canReset ? ',如需纠错可重置实名' : '' }}。
+          </template>
         </div>
       </template>
 

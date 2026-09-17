@@ -97,3 +97,12 @@ cd frontend && npm run build   # 输出到 frontend/dist
 
 - `backend/.env` 含真实密钥，**已被 `.gitignore` 排除，切勿提交**；新增环境变量请同步更新 `backend/.env.example`。
 - 生产环境 JWT 密钥使用 48 字节强随机值，更换后所有登录态失效属预期。
+
+## 代码仓库
+
+本仓库同步推送至两个远端（`origin` 已配置双 push URL，执行一次 `git push` 即可同时更新）：
+
+- Gitee：https://gitee.com/yunxi70332/chhahu.git
+- GitHub：https://github.com/yunxi70332-hue/chahu.git
+
+> ⚠️ 两个仓库均为**公开仓库**，提交前请确认不含密钥、密码或客户数据。
